@@ -1,0 +1,100 @@
+<div>
+    <h1 class="text-center my-5"><%=title%></h1>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+
+            <form name="frm">
+                <div class="input-group">
+                    <input name= "query"value="Node.js" type="text" class="form-control">
+                    <button class="btn btn-success">검색</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="div-list"></div>
+
+
+    <div class="text-center">
+        <button id="prev" class="btn btn-primary">이전</button>
+        <span id="page">1</span>
+        <button id="next" class="btn btn-primary">다음</button>
+    </div>
+    <script id = "temp_list" type="x-handlebars-template">
+
+        <table class="table table-striped table-hover">
+            <!--         요청받은 데이터의 이름 -->
+            {{#each documents}}
+            <tr>
+                <td><img src="{{thumbnail}}" width="50px"></td>
+                <td>{{title}}</td>
+                <td>{{price}}</td>
+                <td>{{authors}}</td>
+            </tr>
+            {{/each}}
+
+        </table>
+    </script>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+
+<script>
+
+
+    let query =$(frm.query).val();
+    let page = 1;
+    let size = 5;
+    getList();
+
+
+
+
+
+  $("#next").on("click",function (){
+    page++;
+    getList();
+  });
+
+
+  $("#prev").on("click", function(){
+    page--;
+    getList();
+  });
+
+
+
+
+  $(frm).on('submit',function (e){
+    e.preventDefault();
+    if (query ==""){
+      alert("검색어를 입력하세요")
+    }else{getList()}
+  });
+
+  function getList (){
+    query = $(frm.query).val();
+
+      $.ajax({
+        type:"get",
+        url:"https://dapi.kakao.com/v3/search/book?target=title",
+        data: {query, size:size, page:page},
+        headers:{
+          "Authorization": "KakaoAK fce5159e7d5768a57a2a9e1bf8a7ed53"
+        },
+        success:function (data){
+          console.log("excuted");
+          const temp = Handlebars.compile($("#temp_list").html());
+          $("#div-list").html(temp(data));
+          const last = Math.ceil(data.meta.pageable_count/size);
+
+          $("#page").html(page+"/" + last);
+          if (page==1)$("#prev").attr("disabled",true)
+          else $("#prev").attr("disabled",false)
+
+          if (data.meta.is_end) $("#next").attr("disabled",true)
+          else $("#next").attr("disabled",false)
+
+        }
+  });
+}
+</script>

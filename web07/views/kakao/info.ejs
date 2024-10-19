@@ -1,0 +1,64 @@
+<div class="my-5 row justify-content-center">
+    <h1 class="text-center mb-5"><%=title%></h1>
+    <div class="card col-md-10">
+        <div class="card-body row">
+            <div class="col-md-4">
+                <img src="<%=info.thumbnail%>" alt="">
+            </div>
+            <div class="col">
+                <h5><%=info.title%></h5>
+                <hr>
+                <div class="col">
+                    <div class="mb-3"> 가격 : <%=info.price %> </div>
+                    <div class="mb-3"> 저자 : <%=info.authors %> </div>
+                    <div class="mb-3"> 출판사 : <%=info.publisher %></div>
+                    <div class="mb-3"> isbn : <%=info.isbn %></div>
+                    <button class="btn btn-warning px-5 cart">장바구니</button>
+                    <button class="btn btn-danger px-5">바로구매</button>
+                </div>
+            </div>
+            <hr>
+            <div> : <%=info.contents%></div>
+
+        </div>
+    </div>
+
+</div>
+
+<script type="module">
+  // 스크립트에서 import 쓰러면 타입이 모듈이어야됨
+  import {app} from "/javascripts/config.js";
+  import { getDatabase ,ref, set, get} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+  const db = getDatabase(app);
+
+  const isbn = "<%=info.isbn%>";
+  const title = "<%=info.title%>";
+  const thumbnail = "<%=info.thumbnail%>";
+  const publisher = "<%=info.publisher%>";
+  const authors = "<%=info.authors%>";
+  const price = "<%=info.price%>";
+  const contents = "<%=info.contents%>";
+  const info = {isbn,title,thumbnail,publisher,authors,price,contents};
+  console.log(info);
+
+
+  $(".cart").on("click", async function () {
+      if (email){
+
+        const ref_cart = ref(db, `cart/${uid}/${isbn}`);
+        const snapshot = await get(ref_cart);
+        if (snapshot.val()){
+          alert("already exist");
+        }else{
+          await set(ref(db, `cart/${uid}/${isbn}`),info);
+          alert("장바구니 추가");
+        }
+
+      }else{
+        sessionStorage.setItem("target", window.location.href);
+        location.href="/users/login";
+      }
+    })
+
+</script>

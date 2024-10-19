@@ -1,0 +1,34 @@
+<div class="mt-5">
+    <a  href="/">Home</a>
+    <a href="/kakao/book">book</a>
+    <a href="/kakao/local">local</a>
+    <a href="/kakao/blog">blog</a>
+    <a id="login" href="/users/login" style="float:right">login</a>
+    <a id="logout" href="/users/login" style="float:right">log-out</a>
+    <a id="mypage" href="/users/mypage" style="float:right">mypage</a>
+
+
+
+    <hr/>
+</div>
+
+<script>
+    const email = sessionStorage.getItem("email");
+    if (email){
+      $("#login").hide();
+      $("#mypage, #logout").show();
+      $("#mypage").html(email);
+    }
+    else{
+      $("#login").show();
+      $("#mypage, #logout").hide();
+    }
+
+    $("#logout").on("click",function (e){
+      e.preventDefault();
+      if (confirm("정말로 로그아웃 하시겠습니까?")){
+        sessionStorage.clear();
+        location.href="/";
+      }
+    })
+</script>

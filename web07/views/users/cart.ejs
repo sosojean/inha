@@ -1,0 +1,39 @@
+<div class="my-5">
+    <h1 class="text center mb-5"><%=title%></h1>
+    <div id = "div-list"></div>
+    <script id="temp-list" type="x-handlebars-template">
+    <table class="table">
+        {{#each .}}
+        <tr>
+            <td><img src="{{thumbnail}}"/></td>
+
+            <td>{{title}}<br>{{price}}<br>{{authors}}</td>
+        </tr>
+        {{/each}}
+    </table>
+
+    </script>
+</div>
+
+<script type="module">
+  import {app} from "/javascripts/config.js";
+  import { getDatabase, ref, onValue, remove} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+  const db = getDatabase(app);
+  onValue(ref(db, `cart/${uid}`),snapshot=>{
+    let rows = [];
+    snapshot.forEach(row=>{
+      rows.push({key:row.key, ...row.val() });
+    })
+    console.log(rows);
+
+    const temp = Handlebars.compile($("#temp-list").html());
+    $("#div-list").html(temp(rows));
+
+
+  })
+
+
+
+
+</script>

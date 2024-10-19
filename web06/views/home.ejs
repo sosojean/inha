@@ -1,0 +1,103 @@
+<div class="row">
+    <h1 class="text-center my-5"><%=title%></h1>
+    <div class="row mb-2">
+        <form name="frm" class="col-6 col-md-4">
+            <div class="input-group">
+                <input name="query" class="form-control" value="소진">
+                <button class="btn btn-primary">검색</button>
+            </div>
+
+        </form>
+
+
+    </div>
+
+
+    <div id="div-list" class="row"></div>
+    <div class="text-center">
+        <button id="prev" class="btn btn-primary">이전</button>
+        <span id="page" class="mx-3">{{page}}</span>
+        <button id="next" class="btn btn-primary" >다음</button>
+    </div>
+    <script id="temp-list" type="x-handlebars-template">
+        {{#each documents}}
+        <div class="col-lg-2 col-6 col-md-3">
+            <div class="card">
+                <a href="/kakao/book/info?title={{title}}&thumbnail={{thumbnail}}&price={{price}}&authors={{authors}}&publisher={{publisher}}&isbn={{isbn}}&contents={{contents}}">
+                    <img class="card-body" src="{{funThumbnail thumbnail}}" width="100%" style="cursor: pointer">
+
+                </a>
+
+                <div class="card-footer">
+                    <div class="ellipsis">{{title}}</div>
+                    <div>{{price}}원</div>
+                </div>
+            </div>
+
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        Handlebars.registerHelper("funThumbnail",function (thumbnail){
+          if (thumbnail) return thumbnail;
+          else return "http://via.placeholder.com/120x174";
+        })
+    </script>
+</div>
+
+<script>
+  let query = "소진";
+  let size = 12;
+  let page = 1;
+  getList();
+
+  $(frm).on("submit",function (e) {
+    e.preventDefault();
+    query =$(frm.query).val();
+    getList();
+    if (query==""){
+      alert("검색어를 입력하세요")
+    }else{
+      getList();
+    }
+    
+  })
+  // $("#div-list").on("click",'img',function (){
+  //   location.href="/kakao/book/info";
+  // })
+
+  $("#next").on("click",function (){
+    page++;
+    getList();
+  });
+
+  $("#prev").on("click",function (){
+    page--;
+    getList();
+  });
+
+  function getList (){
+    $.ajax({
+      type: "get",
+      url: "https://dapi.kakao.com/v3/search/book?target=title",
+      data: {query, size: size, page: page},
+      headers: {
+        "Authorization": "KakaoAK fce5159e7d5768a57a2a9e1bf8a7ed53"
+      },
+      success: function (data) {
+        console.log("excuted");
+        const temp = Handlebars.compile($("#temp-list").html());
+        $("#div-list").html(temp(data));
+        const last = Math.ceil(data.meta.pageable_count / size);
+
+        $("#page").html(page + "/" + last);
+        if (page == 1) $("#prev").attr("disabled", true)
+        else $("#prev").attr("disabled", false)
+
+        if (data.meta.is_end) $("#next").attr("disabled", true)
+        else $("#next").attr("disabled", false)
+        console.log(data)
+      }
+    });
+  }
+</script>
